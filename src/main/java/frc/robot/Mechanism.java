@@ -141,12 +141,12 @@ public class Mechanism implements Subsystem {
         SmartDashboard.putNumber("pivot Current", pivot.getSupplyCurrent().asSupplier().get());
         SmartDashboard.putNumber("pivot Volts", pivot.getSupplyVoltage().asSupplier().get());
         SmartDashboard.putNumber("pivot Temp", pivot.getDeviceTemp().asSupplier().get());
-        // piviott.setAngle(pivot.getPosition().getValueAsDouble() * 3.6);
+        piviott.setAngle(pivot.getPosition().getValueAsDouble() * 3.6);
         SmartDashboard.putData("Piviot Mech", mech);
     }
 
     // units are inches
     private Mechanism2d mech = new Mechanism2d(28, 28);
-    private MechanismRoot2d root = mech.getRoot("PivPoint",20, 18);
-    private MechanismLigament2d piviott = root.append(new MechanismLigament2d("Shooter", 18,180));
+    private MechanismRoot2d root = mech.getRoot("PivPoint", 20, 18);
+    private MechanismLigament2d piviott = root.append(new MechanismLigament2d("Shooter", 18, 180));
 }
