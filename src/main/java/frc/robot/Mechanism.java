@@ -3,7 +3,6 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,10 +24,12 @@ public class Mechanism implements Subsystem {
 			.subscribe(-0.25);
 
 	private DoubleSubscriber shooterSpeed = NetworkTableInstance.getDefault().getDoubleTopic("shooterSpeed")
-			.subscribe(-0.8);
+			.subscribe(-1);
 
 	private DoubleSubscriber pivotSpeed = NetworkTableInstance.getDefault().getDoubleTopic("pivotSpeed")
 			.subscribe(0.15);
+
+	private boolean isSetpoint = false;
 
 	private TalonSRX intake;
 	private TalonSRX intake2;
@@ -37,6 +38,7 @@ public class Mechanism implements Subsystem {
 	private TalonSRX shooter;
 	private TalonFX pivot;
 
+	@SuppressWarnings("resource")
 	public Mechanism() {
 		register();
 
@@ -50,8 +52,8 @@ public class Mechanism implements Subsystem {
 
 		Slot0Configs conf = new Slot0Configs();
 
-		conf.kP = 0.01;
-		conf.kD = 1;
+		conf.kP = 0.1 * 1;
+		conf.kD = 0.000004 * 0.01 * 0;
 
 		pivot = new TalonFX(7);
 		TalonFX pivot2 = new TalonFX(17);
@@ -72,15 +74,21 @@ public class Mechanism implements Subsystem {
 		operator.start().onTrue(new InstantCommand(() -> pivot.setPosition(0)));
 
 		operator.povDown().onTrue(pivot(0)).onFalse(pivotStop());
-		operator.povLeft().onTrue(pivot(-3.284)).onFalse(pivotStop());
+		operator.povLeft().onTrue(pivot(-3.284 * 2)).onFalse(pivotStop());
 	}
 
 	Command pivot(double pos) {
-		return new InstantCommand(() -> pivot.setControl(new PositionDutyCycle(pos)));
+		return new InstantCommand(() -> {
+			isSetpoint = true;
+			pivot.setControl(new PositionDutyCycle(pos));
+		});
 	}
 
 	Command pivotStop() {
-		return new InstantCommand(() -> pivot.set(0));
+		return new InstantCommand(() -> {
+			isSetpoint = false;
+			pivot.set(0);
+		});
 	}
 
 	/**
@@ -111,6 +119,7 @@ public class Mechanism implements Subsystem {
 
 	@Override
 	public void periodic() {
-		pivot.set(operator.getLeftY() * pivotSpeed.get());
+		if (!isSetpoint)
+			pivot.set(operator.getLeftY() * pivotSpeed.get());
 	}
 }

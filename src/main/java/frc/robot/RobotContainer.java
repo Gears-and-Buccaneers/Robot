@@ -12,13 +12,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
-	private Mechanism mechanism = new Mechanism();
-
 	private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps / 2; // kSpeedAt12VoltsMps desired top speed
 	private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
@@ -35,7 +32,12 @@ public class RobotContainer {
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 	private final Telemetry logger = new Telemetry(MaxSpeed);
 
+	/* Path follower */
+	private Command runAuto = drivetrain.getAutoPath("Tests");
+
 	private void configureBindings() {
+		new Mechanism();
+
 		drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
 				drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() *
 						MaxSpeed) // Drive forward with negative Y (forward)
@@ -65,6 +67,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return Commands.print("No autonomous command configured");
+		return runAuto;
 	}
 }
