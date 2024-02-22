@@ -124,5 +124,16 @@ public class Mechanism implements Subsystem {
 	public void periodic() {
 		if (!isSetpoint)
 			pivot.set(operator.getLeftY() * pivotSpeed.get());
+		 DoubleSubscriber intakeSpeed = NetworkTableInstance.getDefault().getDoubleTopic("intakeSpeed")
+			.subscribe(0.6);
+
+		DoubleSubscriber feederSpeed = NetworkTableInstance.getDefault().getDoubleTopic("feederSpeed")
+			.subscribe(-0.25);
+
+		DoubleSubscriber shooterSpeed = NetworkTableInstance.getDefault().getDoubleTopic("shooterSpeed")
+			.subscribe(-1);
+
+		DoubleSubscriber pivotSpeed = NetworkTableInstance.getDefault().getDoubleTopic("pivotSpeed")
+			.subscribe(0.15);
 	}
 }
