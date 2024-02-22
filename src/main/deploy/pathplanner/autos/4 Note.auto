@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7511871911042578,
+      "y": 6.643898590148211
+    },
+    "rotation": 61.47119235684037
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Note 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Note 4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Note 5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score Note"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

@@ -16,6 +16,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstants;
@@ -52,8 +53,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
 	}
 
-	public Command getAutoPath(String pathName) {
-		return new PathPlannerAuto(pathName);
+	public SendableChooser<Command> getAutoPaths() {
+		return AutoBuilder.buildAutoChooser();
 	}
 
 	private void configurePathPlanner() {
