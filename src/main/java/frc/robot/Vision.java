@@ -3,6 +3,7 @@ package frc.robot;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -24,10 +25,16 @@ public class Vision extends Thread {
 	Matrix<N3, N3> rot = new Matrix<N3, N3>(new SimpleMatrix(new float[3][3]));
 
 	CommandSwerveDrivetrain consumer;
-	DatagramSocket socket;
-	DatagramPacket packet;
+	final DatagramSocket socket;
+	final DatagramPacket packet = new DatagramPacket(new byte[108], 108);
 
-	public Vision(CommandSwerveDrivetrain consumer) {
+	public Vision(int port, CommandSwerveDrivetrain consumer) {
+		try {
+			socket = new DatagramSocket(port);
+		} catch (SocketException e) {
+			throw new Error("SocketException");
+		}
+
 		this.consumer = consumer;
 	}
 

@@ -37,6 +37,7 @@ public class RobotContainer {
 
 	private void configureBindings() {
 		new Mechanism();
+		new Vision(5892, drivetrain);
 
 		drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
 				drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() *
