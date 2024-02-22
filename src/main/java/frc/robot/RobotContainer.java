@@ -19,7 +19,7 @@ public class RobotContainer {
 	private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps / 2; // kSpeedAt12VoltsMps desired top speed
 	private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
-	private Pose2d speakerPose;
+	private Pose2d speakerPose = new Pose2d();
 
 	/* Setting up bindings for necessary control of the swerve drive platform */
 	private final CommandXboxController driver = new CommandXboxController(0); // My joystick
