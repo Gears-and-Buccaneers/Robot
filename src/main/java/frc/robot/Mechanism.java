@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class Mechanism implements Subsystem {
-	private final CommandXboxController operator = new CommandXboxController(1); // My joystick
+	private final CommandXboxController driver, operator; // My joystick
 
 	private DoubleSubscriber intakeSpeed = NetworkTableInstance.getDefault().getDoubleTopic("intakeSpeed")
 			.subscribe(0.6);
@@ -39,8 +39,11 @@ public class Mechanism implements Subsystem {
 	private TalonFX pivot;
 
 	@SuppressWarnings("resource")
-	public Mechanism() {
+	public Mechanism(CommandXboxController driver, CommandXboxController operator) {
 		register();
+
+		this.driver = driver;
+		this.operator = operator;
 
 		intake = new TalonSRX(9);
 		intake2 = new TalonSRX(10);
