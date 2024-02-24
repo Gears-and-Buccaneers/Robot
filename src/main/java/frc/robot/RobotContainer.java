@@ -18,75 +18,75 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-    private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+	private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
+	private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
-    private Pose2d speakerPose = new Pose2d();
+	private Pose2d speakerPose = new Pose2d();
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final CommandXboxController driver = new CommandXboxController(0); // My joystick
-    private final CommandXboxController operator = new CommandXboxController(1);
+	/* Setting up bindings for necessary control of the swerve drive platform */
+	private final CommandXboxController driver = new CommandXboxController(0); // My joystick
+	private final CommandXboxController operator = new CommandXboxController(1);
 
-    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
-    // // My drivetrain
+	private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain;
+	// // My drivetrain
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric driving in open loop
+	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric driving in open loop
 
-    private final SwerveRequest.FieldCentricFacingAngle driveAt = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric driving in open loop
+	private final SwerveRequest.FieldCentricFacingAngle driveAt = new SwerveRequest.FieldCentricFacingAngle()
+			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric driving in open loop
 
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+	private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    /* Path follower */
-    private final SendableChooser<Command> autoChooser = drivetrain.getAutoPaths();
+	/* Path follower */
+	private final SendableChooser<Command> autoChooser = drivetrain.getAutoPaths();
 
-    private void configureBindings() {
-        new Mechanism(driver, operator);
-        new Vision(5892, drivetrain);
+	private void configureBindings() {
+		new Mechanism(driver, operator);
+		// new Vision(5892, drivetrain).start();
 
-        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                                 // negative Y
-                                                                                                 // (forward)
-                        .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with
-                                                                                  // negative X (left)
-                ));
+		drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+				drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with
+																									// negative Y
+																									// (forward)
+						.withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+						.withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with
+																					// negative X (left)
+				));
 
-        driver.rightBumper().onTrue(drivetrain.applyRequest(() -> driveAt
-                .withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with
-                // negative Y
-                // (forward)
-                .withVelocityY(-driver.getLeftX() * MaxSpeed)
-                .withTargetDirection(speakerPose.minus(drivetrain.getState().Pose).getRotation())));
+		driver.rightBumper().whileTrue(drivetrain.applyRequest(() -> driveAt
+				.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with
+				// negative Y
+				// (forward)
+				.withVelocityY(-driver.getLeftX() * MaxSpeed)
+				.withTargetDirection(speakerPose.minus(drivetrain.getState().Pose).getRotation())));
 
-        driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driver.b().whileTrue(drivetrain
-                .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
+		driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+		driver.b().whileTrue(drivetrain
+				.applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-        // reset the field-centric heading on left bumper press
-        driver.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+		// reset the field-centric heading on left bumper press
+		driver.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
-        if (Utils.isSimulation()) {
-            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
-                    Rotation2d.fromDegrees(90)));
-        }
-        drivetrain.registerTelemetry(logger::telemeterize);
-    }
+		if (Utils.isSimulation()) {
+			drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
+					Rotation2d.fromDegrees(90)));
+		}
+		drivetrain.registerTelemetry(logger::telemeterize);
+	}
 
-    public RobotContainer() {
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+	public RobotContainer() {
+		SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        configureBindings();
+		configureBindings();
 
-    }
+	}
 
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
-    }
+	public Command getAutonomousCommand() {
+		return autoChooser.getSelected();
+	}
 }
