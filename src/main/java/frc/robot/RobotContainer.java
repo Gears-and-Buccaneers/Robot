@@ -26,10 +26,10 @@ public class RobotContainer {
 
     // Subsystem
     private final DrivetrainSub drivetrain = TunerConstants.DriveTrain;
-    private IntakeSub intake = new IntakeSub();
     private FeederSub feeder = new FeederSub();
     private ShooterSub shooter = new ShooterSub();
     private PivotSub pivot = new PivotSub();
+    private IntakeSub intake = new IntakeSub(() -> feeder.hasNote());
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 

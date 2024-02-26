@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -19,8 +21,11 @@ public class IntakeSub implements SubsystemReq {
     // Vars
     private double maxIntakeSpeed = 0.60;
     private String maxIntakeSpeedKey = simpleName + "Speed";
+    private BooleanSupplier feederHasNote;
 
-    public IntakeSub() {
+    public IntakeSub(BooleanSupplier feederNote) {
+        this.feederHasNote = feederNote;
+
         // Motors
         intake1 = new TalonSRX(9);
         intake2 = new TalonSRX(10);
@@ -55,7 +60,7 @@ public class IntakeSub implements SubsystemReq {
         }, () -> {
         }, (_interrupted) -> {
             disable();
-        }, () -> false);
+        }, feederHasNote);
     }
 
     public void loadPreferences() {

@@ -75,7 +75,7 @@ public class PivotSub implements SubsystemReq {
         conf.MotionMagic.MotionMagicCruiseVelocity = 0.2;
         // conf.MotionMagic.MotionMagicJerk
 
-        //TODO: CurrentLimit
+        // TODO: CurrentLimit
 
         pivot1 = new TalonFX(7);
         pivot2 = new TalonFX(17);
@@ -107,8 +107,7 @@ public class PivotSub implements SubsystemReq {
             pivot1.setControl(new MotionMagicDutyCycle(setpoint));
         }, () -> {
         }, (_interrupted) -> {
-            this.setpoint = -1;
-            pivot1.set(0);
+            disable();
         }, () -> Math.abs(pivot1.getPosition().getValueAsDouble() - setpoint) < .005, this);
         // .onlyIf(() -> homed);
     }
@@ -131,6 +130,7 @@ public class PivotSub implements SubsystemReq {
     }
 
     public void disable() {
+        this.setpoint = -1;
         pivot1.set(0);
     }
 
