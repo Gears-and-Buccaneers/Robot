@@ -24,10 +24,12 @@ public class RobotContainer {
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
     private final CommandXboxController operator = new CommandXboxController(1);
 
-    // Subsytems
+    // Subsystem
     private final DrivetrainSub drivetrain = TunerConstants.DriveTrain;
     private IntakeSub intake = new IntakeSub();
     private FeederSub feeder = new FeederSub();
+    private ShooterSub shooter = new ShooterSub();
+    private PivotSub pivot = new PivotSub();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -35,22 +37,26 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = drivetrain.getAutoPaths();
 
     public RobotContainer() {
+        configureBindings();
+        configureNamedCommands();
+
         // new Vision(5892, drivetrain).start();
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         // Subsystems
         SmartDashboard.putData("Intake", intake);
+        SmartDashboard.putData("Intake", feeder);
+        SmartDashboard.putData("Intake", shooter);
+        SmartDashboard.putData("Intake", pivot);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        configureBindings();
-        configureNamedCommands();
     }
 
     private void configureBindings() {
         // Auto
-        autoChooser.addOption("Cmdbased-1note", mec.pivot(0.028564453125).withTimeout(1)
-                .andThen(mec.shooter(true).alongWith(new WaitCommand(1).andThen(feeder.feed(true))).withTimeout(3)));
+        autoChooser.addOption("CmdBased-1note", pivot.speekerPose(drivetrain.getState().Pose).withTimeout(1)
+                .andThen(shooter.shoot(true).alongWith(new WaitCommand(1).andThen(feeder.feed(true))).withTimeout(3)));
 
         // Driver
         drivetrain.setDefaultCommand(drivetrain.drive(
@@ -58,14 +64,14 @@ public class RobotContainer {
                 -driver.getLeftX() * MaxSpeed,
                 -driver.getRightX() * MaxAngularRate));
 
-        driver.a().whileTrue(drivetrain.driveAt(
-                -driver.getLeftY() * MaxSpeed,
-                -driver.getLeftX() * MaxSpeed,
-                speakerPose.minus(drivetrain.getState().Pose).getRotation()));
+        driver.leftBumper().onTrue(
+                drivetrain.zeroGyro());
 
-        driver.b().whileTrue(drivetrain.xState());
+        driver.x().whileTrue(
+                drivetrain.xState());
 
-        driver.leftBumper().onTrue(drivetrain.zeroGyro());
+        driver.rightTrigger().whileTrue(
+                feeder.feed(true).alongWith(intake.intake(true).onlyIf(pivot::atIntakePos)));
 
         // if (Utils.isSimulation()) {
         // drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
@@ -73,26 +79,31 @@ public class RobotContainer {
         // }
 
         // operator
-        // piviot.setDefultCommand(intapePose)
-        operator.leftTrigger().whileTrue(mec.shooter(true));
-        // operator.rightTrigger().whileTrue(shooter(-1)).onFalse(shooter(0));
+        pivot.setDefaultCommand(pivot.intakePos());
 
-        operator.rightTrigger().whileTrue(feeder.feed(true));
-        operator.a().whileTrue(feeder.feed(true).alongWith(intake.intake(true)));
-        operator.b().whileTrue(feeder.feed(false));
-        operator.y().whileTrue(intake.intake(true));
+        operator.leftTrigger().whileTrue(
+                shooter.shoot(true));
+        operator.leftTrigger().whileTrue(
+                drivetrain.driveAt(
+                        -driver.getLeftY() * MaxSpeed,
+                        -driver.getLeftX() * MaxSpeed,
+                        speakerPose.minus(drivetrain.getState().Pose).getRotation()));
+        operator.leftTrigger().whileTrue(
+                pivot.speekerPose(drivetrain.getState().Pose));
 
-        operator.povDown().whileTrue(mec.pivot(0.01));
-        operator.povLeft().whileTrue(mec.pivot(0.028564453125));
-        operator.povRight().whileTrue(mec.pivot(0.310302734375));
+        operator.rightTrigger().whileTrue(
+                feeder.feed(true));
+
+        operator.a().whileTrue(pivot.ampPose());
     }
 
     private void configureNamedCommands() {
-        NamedCommands.registerCommand("PivIntakePos", mec.pivot(0.01));
-        NamedCommands.registerCommand("PivShootPos", mec.pivot(0.028564453125));
-        NamedCommands.registerCommand("PivShootPos2", mec.pivot(0.310302734375));
+        NamedCommands.registerCommand("IntakePos", pivot.intakePos());
+        NamedCommands.registerCommand("SeekerPose", pivot.speekerPose(speakerPose));
+        NamedCommands.registerCommand("AmpPose", pivot.ampPose());
         NamedCommands.registerCommand("Intake", intake.intake(true).withTimeout(1));
-        NamedCommands.registerCommand("Shoot", mec.shooter(true).alongWith(feeder.feed(true)).withTimeout(1));
+        NamedCommands.registerCommand("Shoot",
+                shooter.shoot(true).alongWith(new WaitCommand(1).andThen(feeder.feed(true))).withTimeout(3));
     }
 
     public Command getAutonomousCommand() {

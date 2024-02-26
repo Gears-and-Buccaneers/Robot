@@ -1,5 +1,6 @@
 package frc.robot.Subsystems;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
@@ -9,6 +10,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -16,13 +18,14 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.generated.TunerConstants;
 
-public class DrivetrainSub extends SwerveDrivetrain implements SubsytemReq {
+public class DrivetrainSub extends SwerveDrivetrain implements SubsystemReq {
     private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
 
     private static final double kSimLoopPeriod = 0.005; // 5 ms
@@ -70,8 +73,16 @@ public class DrivetrainSub extends SwerveDrivetrain implements SubsytemReq {
                         TunerConstants.kSpeedAt12VoltsMps,
                         driveBaseRadius,
                         new ReplanningConfig()),
-                () -> false, // Change this if the path needs to be flipped on red vs blue
+                () -> {
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                }, // Change this if the path needs to be flipped on red vs blue
                 this); // Subsystem for requirements
+        PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
     }
 
     public ChassisSpeeds getCurrentRobotChassisSpeeds() {
@@ -139,5 +150,19 @@ public class DrivetrainSub extends SwerveDrivetrain implements SubsytemReq {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+    }
+
+    public Optional<Rotation2d> getRotationTargetOverride() {
+        // // Some condition that should decide if we want to override rotation
+        // if (Limelight.hasGamePieceTarget()) {
+        // // Return an optional containing the rotation override (this should be a
+        // field
+        // // relative rotation)
+        // return Optional.of(Limelight.getRobotToGamePieceRotation());
+        // } else {
+        // // return an empty optional when we don't want to override the path's
+        // rotation
+        return Optional.empty();
+        // }
     }
 }

@@ -24,13 +24,6 @@
       "/SmartDashboard/Module 3": "Mechanism2d",
       "/SmartDashboard/Piviot": "Mechanism2d",
       "/SmartDashboard/Piviot Mech": "Mechanism2d"
-    },
-    "windows": {
-      "/SmartDashboard/Piviot Mech": {
-        "window": {
-          "visible": true
-        }
-      }
     }
   },
   "NetworkTables": {

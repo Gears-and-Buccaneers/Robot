@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 
-public class IntakeSub implements SubsytemReq {
+public class IntakeSub implements SubsystemReq {
     private final String simpleName = this.getClass().getSimpleName();
 
     // Hardware
-    private TalonSRX intake;
+    private TalonSRX intake1;
     private TalonSRX intake2;
 
     // Vars
@@ -22,29 +22,30 @@ public class IntakeSub implements SubsytemReq {
 
     public IntakeSub() {
         // Motors
-        intake = new TalonSRX(9);
+        intake1 = new TalonSRX(9);
         intake2 = new TalonSRX(10);
 
-        intake.setNeutralMode(NeutralMode.Coast);
+        intake1.setNeutralMode(NeutralMode.Coast);
         intake2.setNeutralMode(NeutralMode.Coast);
+        // TODO: CurrentLimit
 
         // Vars
         Preferences.initDouble(maxIntakeSpeedKey, maxIntakeSpeed);
 
         System.out.println("[Init] Creating " + simpleName + " with:");
-        System.out.println("\t" + intake.getClass().getSimpleName() + " ID:" + intake.getBaseID());
-        System.out.println("\t" + intake2.getClass().getSimpleName() + " ID:" + intake2.getBaseID());
+        System.out.println("\t" + intake1.getClass().getSimpleName() + " ID:" + intake1.getDeviceID());
+        System.out.println("\t" + intake2.getClass().getSimpleName() + " ID:" + intake2.getDeviceID());
     }
 
     private void runForward(boolean forwards) {
         double speed = forwards ? maxIntakeSpeed : -maxIntakeSpeed;
 
-        intake.set(TalonSRXControlMode.PercentOutput, speed);
+        intake1.set(TalonSRXControlMode.PercentOutput, speed);
         intake2.set(TalonSRXControlMode.PercentOutput, -speed);
     }
 
     public void disable() {
-        intake.set(TalonSRXControlMode.PercentOutput, 0);
+        intake1.set(TalonSRXControlMode.PercentOutput, 0);
         intake2.set(TalonSRXControlMode.PercentOutput, 0);
     }
 
@@ -63,6 +64,21 @@ public class IntakeSub implements SubsytemReq {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        builder.addStringArrayProperty("ControlMode",
+                () -> new String[] { intake1.getControlMode().toString(), intake2.getControlMode().toString() },
+                null);
+        builder.addIntegerArrayProperty("DeviceID",
+                () -> new long[] { intake1.getDeviceID(), intake2.getDeviceID() }, null);
 
+        builder.addDoubleArrayProperty("Temp",
+                () -> new double[] { intake1.getTemperature(), intake2.getTemperature() }, null);
+        builder.addDoubleArrayProperty("Supply Current",
+                () -> new double[] { intake1.getSupplyCurrent(), intake2.getSupplyCurrent() }, null);
+        builder.addDoubleArrayProperty("Stator Current",
+                () -> new double[] { intake1.getStatorCurrent(), intake2.getStatorCurrent() }, null);
+        builder.addDoubleArrayProperty("Output Voltage",
+                () -> new double[] { intake1.getMotorOutputVoltage(), intake2.getMotorOutputVoltage() }, null);
+        builder.addDoubleArrayProperty("Bus Voltage",
+                () -> new double[] { intake1.getBusVoltage(), intake2.getBusVoltage() }, null);
     }
 }

@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 
-public class FeederSub implements SubsytemReq {
+public class FeederSub implements SubsystemReq {
     private final String simpleName = this.getClass().getSimpleName();
 
     // Hardware
@@ -27,6 +27,8 @@ public class FeederSub implements SubsytemReq {
 
         feeder.setNeutralMode(NeutralMode.Coast);
 
+        // TODO: CurrentLimit
+
         // Sensors
         limitSwitch = new DigitalInput(1);
 
@@ -34,7 +36,7 @@ public class FeederSub implements SubsytemReq {
         Preferences.initDouble(maxFeederSpeedKey, maxFeederSpeed);
 
         System.out.println("[Init] Creating " + simpleName + " with:");
-        System.out.println("\t" + feeder.getClass().getSimpleName() + " ID:" + feeder.getBaseID());
+        System.out.println("\t" + feeder.getClass().getSimpleName() + " ID:" + feeder.getDeviceID());
         System.out.println("[init] new limit switch on port " + 1);
 
     }
@@ -68,5 +70,21 @@ public class FeederSub implements SubsytemReq {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        builder.addStringArrayProperty("ControlMode",
+                () -> new String[] { feeder.getControlMode().toString() },
+                null);
+        builder.addIntegerArrayProperty("DeviceID",
+                () -> new long[] { feeder.getDeviceID() }, null);
+
+        builder.addDoubleArrayProperty("Temp",
+                () -> new double[] { feeder.getTemperature() }, null);
+        builder.addDoubleArrayProperty("Supply Current",
+                () -> new double[] { feeder.getSupplyCurrent() }, null);
+        builder.addDoubleArrayProperty("Stator Current",
+                () -> new double[] { feeder.getStatorCurrent() }, null);
+        builder.addDoubleArrayProperty("Output Voltage",
+                () -> new double[] { feeder.getMotorOutputVoltage() }, null);
+        builder.addDoubleArrayProperty("Bus Voltage",
+                () -> new double[] { feeder.getBusVoltage() }, null);
     }
 }
