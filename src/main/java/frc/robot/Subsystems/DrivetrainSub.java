@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -44,6 +45,9 @@ public class DrivetrainSub extends SwerveDrivetrain implements SubsystemReq {
 
     public DrivetrainSub(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
+
+        this.seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+
         configurePathPlanner();
 
         if (Utils.isSimulation()) {
@@ -164,5 +168,9 @@ public class DrivetrainSub extends SwerveDrivetrain implements SubsystemReq {
         // rotation
         return Optional.empty();
         // }
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
     }
 }

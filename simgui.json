@@ -23,17 +23,52 @@
       "/SmartDashboard/Module 2": "Mechanism2d",
       "/SmartDashboard/Module 3": "Mechanism2d",
       "/SmartDashboard/Piviot": "Mechanism2d",
-      "/SmartDashboard/Piviot Mech": "Mechanism2d"
+      "/SmartDashboard/Piviot Mech": "Mechanism2d",
+      "/SmartDashboard/pivot Mech": "Mechanism2d"
+    },
+    "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Pose": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
     "transitory": {
+      "FMSInfo": {
+        "open": true
+      },
       "SmartDashboard": {
+        "Intake": {
+          "double[]##v_/SmartDashboard/Intake/Bus Voltage": {
+            "open": true
+          }
+        },
         "open": true
       }
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
     "visible": true
   }
 }

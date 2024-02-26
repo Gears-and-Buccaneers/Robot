@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,7 +21,7 @@ import frc.robot.generated.TunerConstants;
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
     private double MaxAngularRate = TunerConstants.MaxAngularRate; // 3/4 of a rotation per second max angular velocity
-    private Pose2d speakerPose = new Pose2d();
+    private Pose2d speakerPose2d = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -37,6 +40,8 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = drivetrain.getAutoPaths();
 
     public RobotContainer() {
+        drivetrain.zeroGyro();
+
         configureBindings();
         configureNamedCommands();
 
@@ -45,9 +50,9 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Chooser", autoChooser);
         // Subsystems
         SmartDashboard.putData("Intake", intake);
-        SmartDashboard.putData("Intake", feeder);
-        SmartDashboard.putData("Intake", shooter);
-        SmartDashboard.putData("Intake", pivot);
+        SmartDashboard.putData("Feeder", feeder);
+        SmartDashboard.putData("Shooter", shooter);
+        SmartDashboard.putData("Pivot", pivot);
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -73,10 +78,10 @@ public class RobotContainer {
         driver.rightTrigger().whileTrue(
                 feeder.feed(true).alongWith(intake.intake(true).onlyIf(pivot::atIntakePos)));
 
-        // if (Utils.isSimulation()) {
-        // drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
-        // Rotation2d.fromDegrees(90)));
-        // }
+        if (Utils.isSimulation()) {
+            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(),
+                    Rotation2d.fromDegrees(90)));
+        }
 
         // operator
         pivot.setDefaultCommand(pivot.intakePos());
@@ -87,7 +92,7 @@ public class RobotContainer {
                 drivetrain.driveAt(
                         -driver.getLeftY() * MaxSpeed,
                         -driver.getLeftX() * MaxSpeed,
-                        speakerPose.minus(drivetrain.getState().Pose).getRotation()));
+                        speakerPose2d.minus(drivetrain.getPose()).getRotation()));
         operator.leftTrigger().whileTrue(
                 pivot.speekerPose(drivetrain.getState().Pose));
 
@@ -99,7 +104,7 @@ public class RobotContainer {
 
     private void configureNamedCommands() {
         NamedCommands.registerCommand("IntakePos", pivot.intakePos());
-        NamedCommands.registerCommand("SeekerPose", pivot.speekerPose(speakerPose));
+        NamedCommands.registerCommand("SeekerPose", pivot.speekerPose(speakerPose2d));
         NamedCommands.registerCommand("AmpPose", pivot.ampPose());
         NamedCommands.registerCommand("Intake", intake.intake(true).withTimeout(1));
         NamedCommands.registerCommand("Shoot",
