@@ -26,7 +26,7 @@ public class Nt implements Vision {
 	final AprilTagFieldLayout tags = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
 	@Override
-	public void register(Consumer<Measurement> measurement) {
+	public void register(Consumer<Measurement> drivetrain) {
 		NetworkTableInstance nt = NetworkTableInstance.getDefault();
 
 		NetworkTable table = nt.getTable("Subsystems");
@@ -82,11 +82,11 @@ public class Nt implements Vision {
 					if (n != 0) {
 
 						cached.pose = new Pose3d(pX / n, pY / n, pZ / n, new Rotation3d(rX / n, rY / n, rZ / n));
-						cached.timestamp = event.valueData.value.getTime();
-						// TODO: calculate standard deviations of pose measurement.
+						cached.timestamp = event.valueData.value.getTime();  // Timer.getFPGATimestamp() (I Think this needs to be FPGA Timestamp to make sense ref: https://api.ctr-electronics.com/phoenix6/release/java/com/ctre/phoenix6/mechanisms/swerve/SwerveDrivetrain.html addVisionMeasurement )
+						// TODO: calculate standard deviations of pose drivetrain. This TODO needs to happen as we're getting significantly more measurements than the avg FRC team which is part of why the Kalman filter is freaking out... 
 						cached.stdDev = null;
 
-						measurement.accept(cached);
+						drivetrain.accept(cached);
 
 						ntOut.set(cached.pose);
 					}

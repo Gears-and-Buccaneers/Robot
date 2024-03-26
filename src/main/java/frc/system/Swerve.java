@@ -231,9 +231,11 @@ public class Swerve extends SwerveDrivetrain implements LoggedSubsystems, Consum
 
     // ---------- Vision ----------
     public void accept(Measurement t) {
-        if (hasPose) {
+        if (hasPose) {                                              // Just double checking is this just so that the first time we run this we set seedFieldRelative?
+                                                                    // we absolutely need to confirm that we're within 1 meter of where we think we are before we add these values to the filter...
             if (t.stdDev() != null) {
-                addVisionMeasurement(t.pose().toPose2d(), t.timestamp(), t.stdDev());
+                addVisionMeasurement(t.pose().toPose2d(), t.timestamp(), t.stdDev());               // Let's make sure this isn't null.
+                                                                                                    // https://api.ctr-electronics.com/phoenix6/release/java/com/ctre/phoenix6/mechanisms/swerve/SwerveDrivetrain.html#addVisionMeasurement(edu.wpi.first.math.geometry.Pose2d,double) This says that we need to dump those values and this is for teams that aren't running as crazy high FPS as we are...
             } else {
                 addVisionMeasurement(t.pose().toPose2d(), t.timestamp());
             }

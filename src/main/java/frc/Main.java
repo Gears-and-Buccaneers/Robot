@@ -191,7 +191,7 @@ public final class Main extends TimedRobot {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
         // TODO: re-enable vision once the jitter is solved.
-        // new Nt().register(drivetrain);
+        new Nt().register(drivetrain);
 
         configAutos();
         configButtonBindings();
